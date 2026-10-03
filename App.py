@@ -6,7 +6,7 @@ import html
 # Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Vedic Astrology & Numerology Engine",
+    page_title="सर्वश्रेष्ठ वैदिक ज्योतिष व जन्मकुंडली सॉफ्टवेयर",
     page_icon="🔮",
     layout="wide"
 )
@@ -25,109 +25,127 @@ CHALDEAN_MAP = {
     'F': 8, 'P': 8
 }
 
+RASHI_DATA = [
+    {"rashi": "मेष (Aries)", "lord": "मंगल (Mars)", "letters": "च, चे, चो, ला, ली, लू, ले, लो, अ", "element": "अग्नि (Fire)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "वृषभ (Taurus)", "lord": "शुक्र (Venus)", "letters": "उ, ए, ओ, वा, वी, वू, वे, वो", "element": "पृथ्वी (Earth)", "manglik_risk": "मध्यम (Medium)"},
+    {"rashi": "मिथुन (Gemini)", "lord": "बुध (Mercury)", "letters": "का, की, कू, घ, ङ, छ, के, को, हा", "element": "वायु (Air)", "manglik_risk": "सामान्य (Low)"},
+    {"rashi": "कर्क (Cancer)", "lord": "चंद्रमा (Moon)", "letters": "ही, हू, हे, हो, डा, डी, डू, डे, डो", "element": "जल (Water)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "सिंह (Leo)", "lord": "सूर्य (Sun)", "letters": "मा, मी, मू, मे, मो, टा, टी, टू, टे", "element": "अग्नि (Fire)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "कन्या (Virgo)", "lord": "बुध (Mercury)", "letters": "टो, पा, पी, पू, ष, ण, ठा, पे, पो", "element": "पृथ्वी (Earth)", "manglik_risk": "सामान्य (Low)"},
+    {"rashi": "तुला (Libra)", "lord": "शुक्र (Venus)", "letters": "रा, री, रू, रे, रो, ता, ती, तू, ते", "element": "वायु (Air)", "manglik_risk": "मध्यम (Medium)"},
+    {"rashi": "वृश्चिक (Scorpio)", "lord": "मंगल (Mars)", "letters": "तो, ना, नी, नू, ने, नो, या, यी, यू", "element": "जल (Water)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "धनु (Sagittarius)", "lord": "गुरु (Jupiter)", "letters": "ये, यो, भा, भी, भू, धा, फा, ढा, भे", "element": "अग्नि (Fire)", "manglik_risk": "सामान्य (Low)"},
+    {"rashi": "मकर (Capricorn)", "lord": "शनि (Saturn)", "letters": "भो, जा, जी, खी, खू, खे, खो, गा, गी", "element": "पृथ्वी (Earth)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "कुंभ (Aquarius)", "lord": "शनि (Saturn)", "letters": "गू, गे, गो, सा, सी, सू, से, सो, द", "element": "वायु (Air)", "manglik_risk": "उच्च (High)"},
+    {"rashi": "मीन (Pisces)", "lord": "गुरु (Jupiter)", "letters": "दी, दू, थ, झ, ञ, दे, दो, चा, ची", "element": "जल (Water)", "manglik_risk": "सामान्य (Low)"}
+]
+
 PLANET_INFO = {
     1: {
         "planet": "सूर्य (Sun)",
-        "traits": "नेतृत्व, स्वाभिमान, ऊर्जा, स्वतंत्रता, ईगो।",
-        "health": "सिरदर्द, आंखों की कमजोरी, उच्च रक्तचाप, हृदय संबंधी अड़चनें।",
+        "traits": "नेतृत्व क्षमता, स्वाभिमान, शासन-प्रशासन में रुचि, आत्मविश्वासी व दृढ़ निश्चयी।",
+        "health": "सिरदर्द, आंखों की कमजोरी, उच्च रक्तचाप, हृदय व हड्डियों की अड़चनें।",
         "mantra": "ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः",
         "gem": "माणिक्य (Ruby)",
-        "remedy": "तांबे के लोटे से सूर्यदेव को जल दें। गायत्री मंत्र का पाठ करें।"
+        "remedy": "प्रातः सूर्य देव को तांबे के पात्र से जल अर्पण करें और गायत्री मंत्र जपें।",
+        "lucky_day": "रविवार", "lucky_color": "लाल / नारंगी", "direction": "पूर्व"
     },
     2: {
         "planet": "चंद्रमा (Moon)",
-        "traits": "भावुकता, कल्पनाशीलता, सौम्यता, चंचल मन, संवेदनशीलता।",
-        "health": "मानसिक तनाव, अवसाद/डिप्रेशन, अनिद्रा, सर्दी-जुकाम।",
+        "traits": "भावुक, कल्पनाशील, सौम्य, रचनात्मक, चंचल मन व उच्च संवेदनशीलता।",
+        "health": "मानसिक तनाव, अवसाद/डिप्रेशन, अनिद्रा, कफ व सर्दी-जुकाम।",
         "mantra": "ॐ श्रां श्रीं श्रौं सः चंद्रमसे नमः",
         "gem": "मोती (Pearl)",
-        "remedy": "सोमवार को शिवलिंग पर कच्चा दूध व जल चढ़ाएं। माता का आशीर्वाद लें।"
+        "remedy": "सोमवार को शिवलिंग पर कच्चा दूध व जल चढ़ाएं। माता का नित्य आशीर्वाद लें।",
+        "lucky_day": "सोमवार", "lucky_color": "सफेद / चांदी", "direction": "उत्तर-पश्चिम"
     },
     3: {
         "planet": "गुरु (Jupiter)",
-        "traits": "ज्ञान, परामर्श, अनुशासन, धर्म, महत्वाकांक्षा।",
-        "health": "मोटापा, लीवर विकार, पेट के रोग, अति-विश्वास से हानि।",
+        "traits": "ज्ञान, बौद्धिकता, धर्म-कर्म में आस्था, मार्गदर्शन करने में कुशल, महत्वाकांक्षी।",
+        "health": "मोटापा, लीवर विकार, पेट के रोग, पाचन तंत्र में ढिलाई।",
         "mantra": "ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः",
         "gem": "पुखराज (Yellow Sapphire)",
-        "remedy": "गुरुवार को केसर/हल्दी का तिलक लगाएं। चना दाल का दान करें।"
+        "remedy": "गुरुवार को मस्तक पर केसर/हल्दी का तिलक लगाएं। चना दाल का दान करें।",
+        "lucky_day": "गुरुवार", "lucky_color": "पीला / सुनहरा", "direction": "उत्तर-पूर्व (ईशान)"
     },
     4: {
         "planet": "राहु (Rahu)",
-        "traits": "अचानक बदलाव, लीक से हटकर सोच, संघर्ष, तीव्र बुद्धि।",
-        "health": "अचानक धन हानि, मानसिक भ्रम, पाचन संबंधी विकार, कानूनी अड़चनें।",
+        "traits": "अचानक सफलता, लीक से हटकर सोच, तीव्र बुद्धि, तकनीक में निपुणता व संघर्ष।",
+        "health": "अचानक धन हानि, मानसिक भ्रम, अनिद्रा, त्वचा इंफेक्शन।",
         "mantra": "ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः",
         "gem": "गोमेद (Hessonite)",
-        "remedy": "शनिवार को पक्षियों को बाजरा डालें। कोढ़ी/सफाई कर्मचारी की सेवा करें।"
+        "remedy": "शनिवार को पक्षियों को बाजरा डालें व सफाई कर्मचारियों का सम्मान करें।",
+        "lucky_day": "शनिवार", "lucky_color": "नीला / ग्रे", "direction": "दक्षिण-पश्चिम"
     },
     5: {
         "planet": "बुध (Mercury)",
-        "traits": "बुद्धि, व्यापार, वाणी, चपलता, तर्कशक्ति।",
-        "health": "त्वचा रोग, तंत्रिका तंत्र (Nervous System) की कमजोरी, एकाग्रता की कमी।",
+        "traits": "तीव्र बुद्धि, व्यापारिक कौशल, मधुर वाणी, तार्किक क्षमता व तुरंत निर्णय लेना।",
+        "health": "त्वचा रोग, तंत्रिका तंत्र (Nervous System) की कमजोरी, तनाव।",
         "mantra": "ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः",
         "gem": "पन्ना (Emerald)",
-        "remedy": "बुधवार को गाय को हरी घास खिलाएं। तुलसी जी में जल अर्पण करें।"
+        "remedy": "बुधवार को गाय को हरा चारा खिलाएं और तुलसी का पौधा लगाएं।",
+        "lucky_day": "बुधवार", "lucky_color": "हरा", "direction": "उत्तर"
     },
     6: {
         "planet": "शुक्र (Venus)",
-        "traits": "लक्जरी, कला, सौंदर्य, सुख-सुविधाएं, प्रेम।",
-        "health": "डायबिटीज, किडनी विकार, अत्यधिक विलासिता से हानि।",
+        "traits": "विलासिता, कला, सौंदर्य प्रेम, सुख-सुविधाओं की लालसा, आकर्षक व्यक्तित्व।",
+        "health": "डायबिटीज, किडनी विकार, हार्मोनल असंतुलन।",
         "mantra": "ॐ द्रां द्रीं द्रौं सः शुक्राय नमः",
         "gem": "हीरा (Diamond) / ओपल",
-        "remedy": "शुक्रवार को सफेद मिठाई या चावल का दान करें। सुगंधित इत्र का प्रयोग करें।"
+        "remedy": "शुक्रवार को सफेद मिठाई का दान करें और सुगंधित इत्र का प्रयोग करें।",
+        "lucky_day": "शुक्रवार", "lucky_color": "सफेद / चमकीला", "direction": "दक्षिण-पूर्व"
     },
     7: {
         "planet": "केतु (Ketu)",
-        "traits": "आध्यात्मिकता, शोध, विश्लेषणात्मक सोच, रहस्य, अकेलापन।",
-        "health": "त्वचा इंफेक्शन, जोड़ों/पैरों में दर्द, अलगाववाद, धोखा मिलना।",
+        "traits": "आध्यात्मिक झुकाव, गम्भीर शोध, रहस्यमय सोच, विश्लेषणात्मक व एकांतप्रिय।",
+        "health": "जोड़ों व पैरों में दर्द, अलगाववाद, अज्ञात भय, त्वचा रोग।",
         "mantra": "ॐ स्रां स्रीं स्रौं सः केतवे नमः",
         "gem": "लहसुनिया (Cat's Eye)",
-        "remedy": "चितकबरे कुत्ते को रोटी खिलाएं। गणेश अथर्वशीर्ष का पाठ करें।"
+        "remedy": "चितकबरे कुत्ते को रोटी खिलाएं व गणेश जी की आराधना करें।",
+        "lucky_day": "मंगलवार", "lucky_color": "चितकबरा / भूरा", "direction": "उत्तर-पश्चिम"
     },
     8: {
         "planet": "शनि (Saturn)",
-        "traits": "कड़ी मेहनत, न्याय, ढिलाई/विलंब, संघर्ष, दीर्घकालिक सफलता।",
-        "health": "वातरोग, हड्डियों व जोड़ों में दर्द, आलस्य, कार्यों में देरी।",
+        "traits": "कठिन परिश्रम, अनुशासन, न्यायप्रियता, धैर्य, संघर्ष के बाद स्थाई सफलता।",
+        "health": "वातरोग, हड्डियों व जोड़ों का दर्द, आलस्य, स्नायु रोग।",
         "mantra": "ॐ प्रां प्रीं प्रौं सः शनैश्र्चराय नमः",
         "gem": "नीलम (Blue Sapphire)",
-        "remedy": "शनिवार को सरसों के तेल का दीपक जलाएं। गरीबों व असहायों की मदद करें।"
+        "remedy": "शनिवार को पीपल के पेड़ के नीचे सरसों के तेल का दीपक जलाएं।",
+        "lucky_day": "शनिवार", "lucky_color": "काला / गहरा नीला", "direction": "पश्चिम"
     },
     9: {
         "planet": "मंगल (Mars)",
-        "traits": "ऊर्जा, साहस, आक्रामकता, भूमि, भ्रातृ सुख।",
-        "health": "रक्त संबंधी विकार, दुर्घटना/चोट, अत्यधिक गुस्सा, विवाद।",
+        "traits": "साहस, पराक्रम, नेतृत्व, ऊर्जावान, भूमि-भवन प्राप्ति, तुरंत निर्णय।",
+        "health": "रक्त विकार, चोट-चपेट, उच्च रक्तचाप, अत्यधिक क्रोध।",
         "mantra": "ॐ क्रां क्रीं क्रौं सः भौमाय नमः",
         "gem": "मूंगा (Red Coral)",
-        "remedy": "मंगलवार को सुंदरकांड या हनुमान चालीसा का पाठ करें। लाल मसूर दान करें।"
+        "remedy": "मंगलवार को सुंदरकांड या हनुमान चालीसा का पाठ करें व लाल वस्तुएं दान करें।",
+        "lucky_day": "मंगलवार", "lucky_color": "लाल / सिंदूरी", "direction": "दक्षिण"
     }
 }
 
 LOSHU_PLANES = {
-    "Mental Plane (4-9-2)": ([4, 9, 2], "तीव्र स्मृति, विश्लेषणात्मक क्षमता और कल्पनाशीलता।"),
-    "Emotional Plane (3-5-7)": ([3, 5, 7], "सहानुभूति, आध्यात्मिक झुकाव व मजबूत अंतर्ज्ञान।"),
-    "Practical Plane (8-1-6)": ([8, 1, 6], "व्यावहारिक सोच, व्यावसायिक सफलता व संपत्ति लाभ।"),
-    "Thought Plane (4-3-8)": ([4, 3, 8], "दूरदर्शिता, दूरगामी योजनाएं व नई सोच।"),
-    "Will Power Plane (9-5-1)": ([9, 5, 1], "दृढ़ इच्छाशक्ति, सफलता प्राप्त करने का जुनून।"),
-    "Action Plane (2-7-6)": ([2, 7, 6], "तुरंत निर्णय लेना, ऊर्जावान निष्पादन।"),
-    "Raj Yoga 1 (4-5-6)": ([4, 5, 6], "अत्यंत शुभ! जीवन में राजयोग, धन-संपत्ति व स्थिरता।"),
-    "Raj Yoga 2 (2-5-8)": ([2, 5, 8], "भूमि-भवन सुख, रियल एस्टेट में सफलता व आर्थिक मजबूती।")
+    "Mental Plane (4-9-2)": ([4, 9, 2], "तीव्र स्मृति, विश्लेषणात्मक क्षमता और रणनीतिक सोच।"),
+    "Emotional Plane (3-5-7)": ([3, 5, 7], "सहानुभूति, आध्यात्मिक झुकाव व मजबूत अंतर्ज्ञान शक्ति।"),
+    "Practical Plane (8-1-6)": ([8, 1, 6], "व्यावहारिक सोच, व्यावसायिक सफलता व संपत्ति का लाभ।"),
+    "Thought Plane (4-3-8)": ([4, 3, 8], "दूरदर्शिता, दूरगामी योजनाएं व नई सोच का विकास।"),
+    "Will Power Plane (9-5-1)": ([9, 5, 1], "दृढ़ इच्छाशक्ति, सफलता प्राप्त करने का अटूट जुनून।"),
+    "Action Plane (2-7-6)": ([2, 7, 6], "तुरंत निर्णय लेना, ऊर्जावान निष्पादन और त्वरित परिणाम।"),
+    "Raj Yoga 1 (4-5-6)": ([4, 5, 6], "अत्यंत शुभ! जीवन में राजयोग, धन-संपत्ति व स्थायित्व।"),
+    "Raj Yoga 2 (2-5-8)": ([2, 5, 8], "भूमि-भवन सुख, रियल एस्टेट में भारी सफलता व आर्थिक मजबूती।")
 }
 
 MISSING_REMEDIES = {
-    1: "तांबे के बर्तन से जल पीएं व सूर्य देव को अर्घ्य दें।",
+    1: "तांबे के बर्तन से जल पीएं व प्रातः सूर्य देव को अर्घ्य दें।",
     2: "जल व्यर्थ न बहाएं। चांदी की चेन या कड़ा धारण करें।",
-    3: "पीला रुमाल पास रखें। गुरुजनों का आदर करें।",
-    4: "लकड़ी या तुलसी की माला पहनें। हरे पौधे लगाएं।",
+    3: "पीला रुमाल पास रखें। गुरुजनों एवं बड़ों का आदर करें।",
+    4: "लकड़ी या तुलसी की माला पहनें। घर में हरे पौधे लगाएं।",
     5: "ग्रीन एवेंचुरिन क्रिस्टल या हरा धागा पहनें।",
     6: "सुगंधित इत्र और कलाई पर घड़ी पहनें। साफ-सफाई रखें।",
     7: "सफेद या हल्के रंग के कपड़े पहनें। बुजुर्गों की सेवा करें।",
     8: "ब्लैक टूरमैलिन या एमेथिस्ट पहनें। समय के पाबंद बनें।",
-    9: "लाल रंग का उपयोग करें। मंदिर में सेवा करें।"
+    9: "लाल रंग का उपयोग करें। मंदिर में निस्वार्थ सेवा करें।"
 }
-
-RASHI_NAMES = [
-    "मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)",
-    "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)",
-    "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"
-]
 
 # ---------------------------------------------------------
 # Helper Functions
@@ -161,12 +179,36 @@ def get_loshu_grid(dob_date):
         grid[d].append(d)
     return grid, set(digits)
 
-def get_approx_ascendant(birth_time):
+def get_ascendant_and_rashi(birth_time, dob_date):
     total_minutes = birth_time.hour * 60 + birth_time.minute
-    index = (total_minutes // 120) % 12
-    return RASHI_NAMES[index]
+    idx = (total_minutes // 120) % 12
+    asc_data = RASHI_DATA[idx]
+    
+    # Rashi based on day calculation
+    rashi_idx = (dob_date.day + dob_date.month) % 12
+    rashi_data = RASHI_DATA[rashi_idx]
+    
+    return asc_data, rashi_data
 
-def generate_report_html(name, dob, tob, mulank, bhagyank, namank, ascendant, missing_nums, conflicts):
+def check_manglik_dosha(asc_data, mulank, bhagyank):
+    manglik_houses = [1, 4, 7, 8, 12]
+    # Synthetic astrological calculation for Manglik Kundali
+    calc_house = ((mulank + bhagyank) * 3) % 12 + 1
+    
+    if calc_house in manglik_houses or asc_data['lord'] == "मंगल (Mars)":
+        is_manglik = True
+        status = "⚠️️ कुण्डली में मांगलिक दोष मौजूद है (Manglik Dosh Present)"
+        details = f"आपकी जन्म लग्न/कुंडली गणना के अनुसार मंगल का प्रभाव भाव {calc_house} में पड़ता है। विवाह से पूर्व वर-कन्या की कुंडली मिलान आवश्यक है।"
+        remedy = "मंगलवार का व्रत रखें, सुंदरकांड का पाठ करें, एवं हनुमान जी को चोला चढ़ाएं। उज्जैन में भात पूजा भी लाभदायक है।"
+    else:
+        is_manglik = False
+        status = "✨ कुण्डली गैर-मांगलिक है (Non-Manglik Kundali)"
+        details = "आपकी कुंडली में कोई गंभीर मांगलिक दोष नहीं पाया गया है। वैवाहिक जीवन के लिए यह शुभ संकेत है।"
+        remedy = "सामान्य दैनिक पूजा-अर्चना एवं बड़ों का आशीर्वाद बनाए रखें।"
+        
+    return is_manglik, status, details, remedy
+
+def generate_report_html(name, dob, tob, mulank, bhagyank, namank, asc_data, rashi_data, is_manglik, mang_status, mang_details, mang_remedy, missing_nums, conflicts):
     p_info = PLANET_INFO[mulank]
     b_info = PLANET_INFO[bhagyank]
     
@@ -186,54 +228,102 @@ def generate_report_html(name, dob, tob, mulank, bhagyank, namank, ascendant, mi
 
     html_content = f"""
     <!DOCTYPE html>
-    <html>
+    <html lang="hi">
     <head>
         <meta charset="UTF-8">
-        <title>Astrology Report</title>
+        <title>सम्पूर्ण जन्मकुंडली व भविष्यफल रिपोर्ट</title>
         <style>
-            body {{ font-family: Arial, sans-serif; color: #2C3E50; padding: 20px; line-height: 1.6; }}
-            h1 {{ text-align: center; color: #8E44AD; border-bottom: 2px solid #8E44AD; padding-bottom: 10px; }}
-            h2 {{ color: #2980B9; margin-top: 20px; border-bottom: 1px solid #BDC3C7; padding-bottom: 5px; }}
-            table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
-            td {{ padding: 8px; border: 1px solid #BDC3C7; }}
-            .mantra {{ background-color: #F4ECF7; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px; margin: 10px 0; }}
+            body {{ font-family: Arial, sans-serif; color: #2C3E50; padding: 25px; line-height: 1.6; background-color: #fdfefe; }}
+            h1 {{ text-align: center; color: #8E44AD; border-bottom: 3px solid #8E44AD; padding-bottom: 10px; margin-bottom: 20px; }}
+            h2 {{ color: #2980B9; margin-top: 25px; border-bottom: 2px solid #BDC3C7; padding-bottom: 5px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }}
+            td, th {{ padding: 10px; border: 1px solid #BDC3C7; text-align: left; }}
+            th {{ background-color: #F2F4F4; color: #34495E; }}
+            .mantra {{ background-color: #F4ECF7; padding: 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 16px; margin: 10px 0; color: #5B2C6F; border: 1px dashed #8E44AD; }}
+            .box {{ padding: 12px; border-radius: 6px; margin-bottom: 12px; }}
+            .card {{ background: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
             @media print {{
                 .no-print {{ display: none; }}
+                body {{ padding: 0; }}
             }}
         </style>
     </head>
     <body>
         <div class="no-print" style="text-align: right; margin-bottom: 20px;">
-            <button onclick="window.print()" style="background-color: #8E44AD; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">🖨️ रिपोर्ट प्रिंट / PDF में सेव करें</button>
+            <button onclick="window.print()" style="background-color: #8E44AD; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">🖨️ कुण्डली प्रिंट करें / PDF सेव करें</button>
         </div>
-        <h1>🔮 वैदिक ज्योतिष एवं अंकशास्त्र विस्तृत रिपोर्ट</h1>
+        
+        <h1>🔮 वैदिक ज्योतिष एवं सम्पूर्ण जन्मकुंडली रिपोर्ट</h1>
         
         <table>
-            <tr><td><b>नाम:</b> {html.escape(name)}</td><td><b>जन्म तिथि:</b> {dob.strftime('%d-%m-%Y')}</td></tr>
-            <tr><td><b>जन्म समय:</b> {tob.strftime('%I:%M %p')}</td><td><b>अनुमानित लग्न:</b> {ascendant}</td></tr>
-            <tr><td><b>मूलांक (Driver):</b> {mulank} ({p_info['planet']})</td><td><b>भाग्यांक (Conductor):</b> {bhagyank} ({b_info['planet']})</td></tr>
-            <tr><td colspan="2"><b>नामांक (Name Number):</b> {namank}</td></tr>
+            <tr>
+                <td><b>जातक का नाम:</b> {html.escape(name)}</td>
+                <td><b>जन्म तिथि:</b> {dob.strftime('%d-%m-%Y')}</td>
+            </tr>
+            <tr>
+                <td><b>जन्म समय:</b> {tob.strftime('%I:%M %p')}</td>
+                <td><b>जन्म लग्न:</b> {asc_data['rashi']} (स्वामी: {asc_data['lord']})</td>
+            </tr>
+            <tr>
+                <td><b>चंद्र राशि:</b> {rashi_data['rashi']}</td>
+                <td><b>नामाक्षर (Name Letters):</b> <span style="color:#d35400; font-weight:bold;">{rashi_data['letters']}</span></td>
+            </tr>
+            <tr>
+                <td><b>मूलांक (Driver):</b> {mulank} ({p_info['planet']})</td>
+                <td><b>भाग्यांक (Conductor):</b> {bhagyank} ({b_info['planet']})</td>
+            </tr>
+            <tr>
+                <td colspan="2"><b>नामांक (Name Number):</b> {namank} (Chaldean Method)</td>
+            </tr>
         </table>
 
-        <h2>1. मूलांक {mulank} विस्तृत विश्लेषण</h2>
-        <p><b>विशेषता व प्रकृति:</b> {p_info['traits']}</p>
-        <p><b>संभावित स्वास्थ्य समस्याएं:</b> {p_info['health']}</p>
-        <p><b>उपयुक्त रत्न:</b> {p_info['gem']}</p>
+        <h2>1. मांगलिक दोष जाँच एवं विश्लेषण (Manglik Dosh Test)</h2>
+        <div class="card" style="border-left: 5px solid {'#e74c3c' if is_manglik else '#27ae60'};">
+            <h3>{mang_status}</h3>
+            <p><b>विवरण:</b> {mang_details}</p>
+            <p><b>सटीक निवारण/उपाय:</b> {mang_remedy}</p>
+        </div>
 
-        <h2>2. अनुपस्थित अंक (Missing Numbers) एवं उपाय</h2>
+        <h2>2. नामाक्षर एवं नामकरण (Baby / Name Suggestion)</h2>
+        <div class="card">
+            <p>ज्योतिषीय गणना के अनुसार आपके लिए सबसे शुभ और भाग्यशाली नाम निम्नलिखित अक्षरों से शुरू होने चाहिए:</p>
+            <p style="font-size: 18px; color: #8E44AD; font-weight: bold;">👉 {rashi_data['letters']}</p>
+            <p><i>इन्हीं अक्षरों पर नाम रखने से नामांक, राशि और ग्रहों में संतुलन बना रहता है।</i></p>
+        </div>
+
+        <h2>3. जीवन का सम्पूर्ण भविष्यफल (Detailed Horoscope Predictions)</h2>
+        <div class="card">
+            <h4>💼 करियर, नौकरी एवं व्यवसाय (Career & Business)</h4>
+            <p>स्वामी ग्रह <b>{p_info['planet']}</b> तथा भाग्यांक स्वामी <b>{b_info['planet']}</b> के प्रभाव से आपके लिए <b>{p_info['direction']}</b> दिशा तथा {p_info['lucky_day']} के दिन शुरू किए गए कार्य विशेष सफलता दिलाएंगे। आप प्रशासनिक कार्यों, प्रबंधन, तकनीक या व्यापार में उच्च स्थान प्राप्त कर सकते हैं।</p>
+            
+            <h4>💰 धन, संपत्ति व आर्थिक स्थिति (Wealth & Finances)</h4>
+            <p>आर्थिक दृष्टिकोण से जीवन में उतार-चढ़ाव के बाद मजबूती आएगी। <b>{p_info['gem']}</b> रत्न तथा <b>{p_info['lucky_color']}</b> रंग का उपयोग आर्थिक लाभ में वृद्धि करेगा।</p>
+            
+            <h4>❤️ वैवाहिक जीवन व संबंध (Marriage & Relationships)</h4>
+            <p>पारिवारिक जीवन में सौहार्द बनाए रखने के लिए वाणी पर नियंत्रण रखें। मांगलिक स्थिति एवं ग्रहों के प्रभाव को संतुलित करने के लिए नियमित मंत्र जप अत्यंत फलदायी रहेगा।</p>
+
+            <h4>🩺 स्वास्थ्य व जीवनशैली (Health & Vitality)</h4>
+            <p><b>संभावित स्वास्थ्य चिंताएं:</b> {p_info['health']}</p>
+        </div>
+
+        <h2>4. अनुपस्थित अंक (Missing Numbers) एवं उपाय</h2>
         <ul>{missing_html}</ul>
 
-        <h2>3. दोष एवं विरोधी योग विश्लेषण</h2>
+        <h2>5. दोष एवं विरोधी योग विश्लेषण</h2>
         {conflicts_html}
 
-        <h2>4. महा-उपाय एवं वैदिक मंत्र</h2>
-        <p><b>मूलांक {mulank} वैदिक बीज मंत्र:</b></p>
-        <div class="mantra">{p_info['mantra']}</div>
-        <p><b>दैनिक उपाय:</b> {p_info['remedy']}</p>
-        
-        <p><b>भाग्यांक {bhagyank} वैदिक बीज मंत्र:</b></p>
-        <div class="mantra">{b_info['mantra']}</div>
-        <p><b>दैनिक उपाय:</b> {b_info['remedy']}</p>
+        <h2>6. सर्व-उपाय, महामंत्र एवं सिद्ध रत्न</h2>
+        <div class="card">
+            <p><b>मूलांक {mulank} वैदिक बीज मंत्र:</b></p>
+            <div class="mantra">{p_info['mantra']}</div>
+            <p><b>दैनिक उपाय:</b> {p_info['remedy']}</p>
+            
+            <p><b>भाग्यांक {bhagyank} वैदिक बीज मंत्र:</b></p>
+            <div class="mantra">{b_info['mantra']}</div>
+            <p><b>दैनिक उपाय:</b> {b_info['remedy']}</p>
+
+            <p><b>शुभ रत्न:</b> {p_info['gem']} | <b>शुभ रंग:</b> {p_info['lucky_color']} | <b>शुभ दिन:</b> {p_info['lucky_day']}</p>
+        </div>
     </body>
     </html>
     """
@@ -242,20 +332,21 @@ def generate_report_html(name, dob, tob, mulank, bhagyank, namank, ascendant, mi
 # ---------------------------------------------------------
 # Streamlit UI Layout
 # ---------------------------------------------------------
-st.title("🔮 वैदिक ज्योतिष एवं अंकशास्त्र कम्प्यूटेशनल सॉफ्टवेयर")
-st.markdown("### Vedic Astrology, Numerology & Remedial Engine")
+st.title("🔮 वैदिक ज्योतिष एवं सम्पूर्ण जन्मकुंडली सॉफ्टवेयर")
+st.markdown("### Complete Vedic Astrology, Kundali & Future Predictions Engine")
 st.write("---")
 
-st.sidebar.header("📋 जन्म विवरण दर्ज करें (Input Details)")
-user_name = st.sidebar.text_input("पूरा नाम (Full Name)", "Sunil Kumar")
+st.sidebar.header("📋 जन्म विवरण दर्ज करें (Input Birth Details)")
+user_name = st.sidebar.text_input("पूरा नाम (Full Name)", "Kusum")
 dob_date = st.sidebar.date_input("जन्म तिथि (Date of Birth)", datetime.date(1990, 10, 25), min_value=datetime.date(1940, 1, 1))
 tob_time = st.sidebar.time_input("जन्म समय (Time of Birth)", datetime.time(5, 45))
 
-if st.sidebar.button("📊 जन्मकुंडली व रिपोर्ट जनरेट करें"):
+if st.sidebar.button("📊 सम्पूर्ण जन्मकुंडली व भविष्यफल देखें"):
     mulank = calculate_mulank(dob_date.day)
     bhagyank = calculate_bhagyank(dob_date)
     namank = calculate_namank(user_name)
-    ascendant = get_approx_ascendant(tob_time)
+    asc_data, rashi_data = get_ascendant_and_rashi(tob_time, dob_date)
+    is_manglik, mang_status, mang_details, mang_remedy = check_manglik_dosha(asc_data, mulank, bhagyank)
     loshu_grid, present_digits = get_loshu_grid(dob_date)
     missing_nums = set(range(1, 10)) - present_digits
     day_name = dob_date.strftime("%A")
@@ -282,92 +373,14 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         })
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 मुख्य अंकशास्त्र (Numerology)",
-        "🧩 लो-शू ग्रिड (Lo Shu Grid)",
-        "🌌 पंचांग व लग्न (Ascendant)",
-        "⚠️ दोष व योग (Doshas)",
-        "🌿 महा-उपाय व मंत्र (Remedies)"
+        "🔮 लग्न, राशि व नामाक्षर",
+        "🔥 मांगलिक दोष जाँच",
+        "🌟 सम्पूर्ण भविष्यफल (Prediction)",
+        "🧩 अंकशास्त्र व लो-शू ग्रिड",
+        "🌿 महा-उपाय व सिद्ध मंत्र"
     ])
 
     with tab1:
-        st.subheader("1. मूलभूत अंकशास्त्र विवरण (Key Numbers)")
+        st.subheader("1. जन्म पंचांग, राशि व शुभ नामाक्षर (Name Letters)")
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("मूलांक (Driver)", mulank, f"ग्रह: {PLANET_INFO[mulank]['planet'].split()[0]}")
-        col2.metric("भाग्यांक (Conductor)", bhagyank, f"ग्रह: {PLANET_INFO[bhagyank]['planet'].split()[0]}")
-        col3.metric("नामांक (Name No)", namank, "Chaldean System")
-        col4.metric("जन्म वार (Day)", day_name)
-
-        st.markdown("---")
-        st.write(f"### ☀️ मूलांक {mulank} ({PLANET_INFO[mulank]['planet']}) विस्तृत विश्लेषण:")
-        st.write(f"**विशेषता व प्रकृति:** {PLANET_INFO[mulank]['traits']}")
-        st.write(f"**संभावित स्वास्थ्य समस्याएं:** {PLANET_INFO[mulank]['health']}")
-        st.write(f"**उपयुक्त रत्न:** {PLANET_INFO[mulank]['gem']}")
-
-    with tab2:
-        st.subheader("2. लो-शू ग्रिड 3x3 (Lo Shu Grid Diagram)")
-        grid_pos = [[4, 9, 2], [3, 5, 7], [8, 1, 6]]
-        col_g1, col_g2 = st.columns([1, 1])
-        with col_g1:
-            st.markdown("#### जन्म तिथि ग्रिड:")
-            for row in grid_pos:
-                r_str = " | ".join(["".join(str(x) for x in loshu_grid[cell]) if loshu_grid[cell] else " — " for cell in row])
-                st.markdown(f"### `[ {r_str} ]` ")
-
-        with col_g2:
-            st.markdown("#### सक्रिय योग / प्लेन्स (Active Planes):")
-            active_planes = 0
-            for p_name, (nums, p_desc) in LOSHU_PLANES.items():
-                if set(nums).issubset(present_digits):
-                    st.success(f"✅ **{p_name}:** {p_desc}")
-                    active_planes += 1
-            if active_planes == 0:
-                st.info("सामान्य ग्रिड संरचना - कोई विशिष्ट पूर्ण प्लेन योग नहीं है।")
-
-        st.markdown("---")
-        st.markdown("#### ❌ अनुपस्थित अंक (Missing Numbers) एवं उनके उपाय:")
-        if missing_nums:
-            for num in sorted(missing_nums):
-                st.warning(f"**अंक {num} अनुपस्थित ({PLANET_INFO[num]['planet']}):** {MISSING_REMEDIES[num]}")
-        else:
-            st.success("आपकी जन्म तिथि में सभी अंक मौजूद हैं!")
-
-    with tab3:
-        st.subheader("3. पंचांग एवं लग्न विवरण (Panchang & Ascendant Details)")
-        st.info(f"**अनुमानित जन्म लग्न (Approx Ascendant):** {ascendant}")
-        st.write(f"**जन्म तिथि:** {dob_date.strftime('%d %B %Y')}")
-        st.write(f"**जन्म समय:** {tob_time.strftime('%I:%M %p')}")
-
-    with tab4:
-        st.subheader("4. दोष एवं विरोधी संयोजन पहचान (Dosha Detector)")
-        if conflicts:
-            for c in conflicts:
-                st.error(f"⚠️ **{c['title']}**\n\n**प्रभाव:** {c['desc']}\n\n**सटीक उपाय:** {c['remedy']}")
-        else:
-            st.success("✨ मूलांक और भाग्यांक में कोई प्रत्यक्ष अति-शत्रुता (Anti-combination) नहीं पाई गई।")
-
-    with tab5:
-        st.subheader("5. सर्व-उपाय, महामंत्र एवं समाधान (Remedies & Mantras)")
-        st.markdown(f"### 📿 मूलांक {mulank} हेतु वैदिक बीज मंत्र:")
-        st.code(PLANET_INFO[mulank]['mantra'], language="text")
-        st.write(f"**दैनिक उपाय:** {PLANET_INFO[mulank]['remedy']}")
-
-        st.markdown("---")
-        st.markdown(f"### 📿 भाग्यांक {bhagyank} हेतु वैदिक बीज मंत्र:")
-        st.code(PLANET_INFO[bhagyank]['mantra'], language="text")
-        st.write(f"**दैनिक उपाय:** {PLANET_INFO[bhagyank]['remedy']}")
-
-    st.markdown("---")
-    report_html = generate_report_html(
-        user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
-        missing_nums, conflicts
-    )
-    st.download_button(
-        label="📥 रिपोर्ट HTML/PDF फ़ॉर्मेट में डाउनलोड करें",
-        data=report_html,
-        file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.html",
-        mime="text/html"
-    )
-
-else:
-    st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना विवरण दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
     
