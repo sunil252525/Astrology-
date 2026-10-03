@@ -33,11 +33,13 @@ with st.form("complete_astro_form"):
         "लिंग (Gender)", ["बालक (Boy)", "बालिका (Girl)", "अन्य (Other)"]
     )
 
-  submitted = st.form_submit_button("🔮 सम्पूर्ण वैदिक कुण्डली एवं रिपोर्ट जनरेट करें")
+  submitted = st.form_submit_button(
+      "🔮 सम्पूर्ण वैदिक कुण्डली एवं रिपोर्ट जनरेट करें"
+  )
 
 
 # -------------------------------------------------------------
-# 3. VEDIC CALCULATIONS ENGINE (लॉजिक और गणित)
+# 3. VEDIC CALCULATIONS ENGINE
 # -------------------------------------------------------------
 def calculate_numerology(dob_obj):
   day = dob_obj.day
@@ -55,7 +57,7 @@ def calculate_numerology(dob_obj):
   while bhagyank > 9:
     bhagyank = sum(int(d) for d in str(bhagyank))
 
-  # Lo Shu Grid Frequency
+  # Lo Shu Grid
   grid_digits = [int(d) for d in full_dob_str if d != "0"]
 
   return mulank, bhagyank, grid_digits
@@ -63,36 +65,35 @@ def calculate_numerology(dob_obj):
 
 def get_panchang_details(dob_obj, tob_obj):
   nakshatras = [
-      "अश्विनी (Ashwini)",
-      "भरणी (Bharani)",
-      "कृत्तिका (Krittika)",
-      "रोहिणी (Rohini)",
-      "मृगशिरा (Mrigashira)",
-      "आर्द्रा (Ardra)",
-      "पुनर्वसु (Punarvasu)",
-      "पुष्य (Pushya)",
-      "अश्लेषा (Ashlesha)",
-      "मघा (Magha)",
-      "पूर्वाफाल्गुनी (Purva Phalguni)",
-      "उत्तराफाल्गुनी (Uttara Phalguni)",
-      "हस्त (Hasta)",
-      "चित्रा (Chitra)",
-      "स्वाती (Swati)",
-      "विशाखा (Vishakha)",
-      "अनुराधा (Anuradha)",
-      "ज्येष्ठा (Jyeshtha)",
-      "मूल (Mula)",
-      "पूर्वाषाढा (Purva Ashadha)",
-      "उत्तराषाढा (Uttara Ashadha)",
-      "श्रवण (Shravana)",
-      "धनिष्ठा (Dhanishta)",
-      "शतभिषा (Shatabhisha)",
-      "पूर्वाभाद्रपद (Purva Bhadrapada)",
-      "उत्तराभाद्रपद (Uttara Bhadrapada)",
-      "रेवती (Revati)",
+      "Ashwini",
+      "Bharani",
+      "Krittika",
+      "Rohini",
+      "Mrigashira",
+      "Ardra",
+      "Punarvasu",
+      "Pushya",
+      "Ashlesha",
+      "Magha",
+      "Purva Phalguni",
+      "Uttara Phalguni",
+      "Hasta",
+      "Chitra",
+      "Swati",
+      "Vishakha",
+      "Anuradha",
+      "Jyeshtha",
+      "Mula",
+      "Purva Ashadha",
+      "Uttara Ashadha",
+      "Shravana",
+      "Dhanishta",
+      "Shatabhisha",
+      "Purva Bhadrapada",
+      "Uttara Bhadrapada",
+      "Revati",
   ]
 
-  # Mathematical Index offset simulation for planetary placements
   total_minutes = tob_obj.hour * 60 + tob_obj.minute
   day_of_year = dob_obj.timetuple().tm_yday
 
@@ -100,16 +101,15 @@ def get_panchang_details(dob_obj, tob_obj):
   nakshatra_name = nakshatras[nak_idx]
 
   tithi_num = (day_of_year % 30) + 1
-  tithi_name = f"शुक्ल/कृष्ण पक्ष तिथि-{tithi_num}"
+  tithi_name = f"Shukla/Krishna Paksha Tithi-{tithi_num}"
 
-  # Gandmool Check
   gandmool_naks = [
-      "अश्विनी (Ashwini)",
-      "अश्लेषा (Ashlesha)",
-      "मघा (Magha)",
-      "ज्येष्ठा (Jyeshtha)",
-      "मूल (Mula)",
-      "रेवती (Revati)",
+      "Ashwini",
+      "Ashlesha",
+      "Magha",
+      "Jyeshtha",
+      "Mula",
+      "Revati",
   ]
   is_gandmool = nakshatra_name in gandmool_naks
 
@@ -117,7 +117,7 @@ def get_panchang_details(dob_obj, tob_obj):
 
 
 # -------------------------------------------------------------
-# 4. ADVANCED PDF GENERATOR (FPDF2 - Fully Robust)
+# 4. ADVANCED PDF GENERATOR (Standard ASCII Encoding)
 # -------------------------------------------------------------
 def generate_advanced_pdf(dob_obj, tob_obj, pob_str, gender_str):
   pdf = FPDF()
@@ -125,7 +125,6 @@ def generate_advanced_pdf(dob_obj, tob_obj, pob_str, gender_str):
 
   page_width = pdf.w - 2 * pdf.l_margin
 
-  # Calculations
   mulank, bhagyank, grid_digits = calculate_numerology(dob_obj)
   nakshatra, tithi, is_gandmool = get_panchang_details(dob_obj, tob_obj)
 
@@ -192,7 +191,7 @@ def generate_advanced_pdf(dob_obj, tob_obj, pob_str, gender_str):
   )
   pdf.ln(4)
 
-  # Section 3: Vastu & Environmental Recommendations
+  # Section 3: Vastu Guidelines
   pdf.set_font("Helvetica", "B", 12)
   pdf.cell(page_width, 8, "3. Vastu Guidelines for Childhood Growth", ln=True)
   pdf.set_font("Helvetica", "", 10)
@@ -213,7 +212,7 @@ def generate_advanced_pdf(dob_obj, tob_obj, pob_str, gender_str):
   )
   pdf.ln(4)
 
-  # Section 4: Rituals & Protection (16 Sanskars)
+  # Section 4: Rituals & Protection
   pdf.set_font("Helvetica", "B", 12)
   pdf.cell(
       page_width,
@@ -239,7 +238,7 @@ def generate_advanced_pdf(dob_obj, tob_obj, pob_str, gender_str):
   )
   pdf.ln(4)
 
-  # Section 5: Vimshottari Dasha & Future Cycles
+  # Section 5: Vimshottari Dasha
   pdf.set_font("Helvetica", "B", 12)
   pdf.cell(
       page_width,
