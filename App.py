@@ -1,10 +1,8 @@
 import streamlit as st
 import datetime
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
-import io
+from fpdf import FPDF
+import requests
+import os
 
 # ---------------------------------------------------------
 # Page Configuration
@@ -160,97 +158,79 @@ def calculate_namank(name):
 def get_loshu_grid(dob_date):
     dob_str = dob_date.strftime("%d%m%Y")
     digits = [int(d) for d in dob_str if d != '0']
-    
     grid = {i: [] for i in range(1, 10)}
     for d in digits:
         grid[d].append(d)
     return grid, set(digits)
 
 def get_approx_ascendant(birth_time):
-    # Standard 2-hour division per Rashi starting from Sunrise ~6:00 AM Aries
     total_minutes = birth_time.hour * 60 + birth_time.minute
     index = (total_minutes // 120) % 12
     return RASHI_NAMES[index]
 
-def generate_pdf_report(name, dob, tob, mulank, bhagyank, namank, ascendant, loshu_grid, missing_nums, conflicts):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
-    story = []
+def download_hindi_font():
+    font_path = "FreeSerif.ttf"
+    if not os.path.exists(font_path):
+        url = "https://raw.githubusercontent.com/google/fonts/main/ofl/dejavusans/DejaVuSans.ttf"
+        r = requests.get(url)
+        with open(font_path, "wb") as f:
+            f.write(r.content)
+    return font_path
+
+def generate_pdf_fpdf(name, dob, tob, mulank, bhagyank, namank, ascendant, loshu_grid, missing_nums, conflicts):
+    font_path = download_hindi_font()
     
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'TitleStyle',
-        parent=styles['Heading1'],
-        fontSize=20,
-        textColor=colors.HexColor('#1b365d'),
-        alignment=1,
-        spaceAfter=15
-    )
-    heading_style = ParagraphStyle(
-        'HeadingStyle',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=colors.HexColor('#2c5282'),
-        spaceBefore=10,
-        spaceAfter=5
-    )
-    body_style = ParagraphStyle(
-        'BodyStyle',
-        parent=styles['Normal'],
-        fontSize=10,
-        leading=14,
-        spaceAfter=6
-    )
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.add_font("HindiFont", "", font_path)
+    pdf.set_font("HindiFont", size=12)
 
-    story.append(Paragraph("<b>Vedic Astrology & Numerology Comprehensive Report</b>", title_style))
-    story.append(Spacer(1, 10))
+    # Title
+    pdf.set_font("HindiFont", size=16)
+    pdf.cell(0, 10, "वैदिक ज्योतिष एवं अंकशास्त्र विस्तृत रिपोर्ट", ln=True, align="C")
+    pdf.ln(5)
 
-    # Basic Info Table
-    data = [
-        ["Name", name, "Date of Birth", dob.strftime("%d-%m-%Y")],
-        ["Time of Birth", tob.strftime("%H:%M"), "Approx Ascendant", ascendant],
-        ["Mulank (Driver)", str(mulank), "Bhagyank (Conductor)", str(bhagyank)],
-        ["Namank (Name No)", str(namank), "", ""]
-    ]
-    t = Table(data, colWidths=[120, 140, 120, 140])
-    t.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0f4f8')),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('PADDING', (0, 0), (-1, -1), 6),
-    ]))
-    story.append(t)
-    story.append(Spacer(1, 15))
+    # User Info
+    pdf.set_font("HindiFont", size=11)
+    pdf.cell(0, 8, f"नाम: {name} | जन्म तिथि: {dob.strftime('%d-%m-%Y')} | समय: {tob.strftime('%H:%M')}", ln=True)
+    pdf.cell(0, 8, f"अनुमानित लग्न: {ascendant} | नामांक: {namank}", ln=True)
+    pdf.cell(0, 8, f"मूलांक (Driver): {mulank} | भाग्यांक (Conductor): {bhagyank}", ln=True)
+    pdf.ln(5)
 
-    # Driver & Conductor Analysis
-    story.append(Paragraph("<b>1. Planetary Analysis & Attributes</b>", heading_style))
+    # Planetary Analysis
+    pdf.set_font("HindiFont", size=13)
+    pdf.cell(0, 10, "1. मूलांक व ग्रह विश्लेषण", ln=True)
+    pdf.set_font("HindiFont", size=10)
     p_info = PLANET_INFO[mulank]
-    story.append(Paragraph(f"<b>Driver Planet ({p_info['planet']}):</b> {p_info['traits']}", body_style))
-    story.append(Paragraph(f"<b>Health Warnings:</b> {p_info['health']}", body_style))
-    story.append(Paragraph(f"<b>Vedic Mantra:</b> {p_info['mantra']}", body_style))
-    story.append(Paragraph(f"<b>Gemstone:</b> {p_info['gem']} | <b>Remedy:</b> {p_info['remedy']}", body_style))
-    story.append(Spacer(1, 10))
+    pdf.multi_cell(0, 6, f"स्वामी ग्रह: {p_info['planet']}")
+    pdf.multi_cell(0, 6, f"विशेषता: {p_info['traits']}")
+    pdf.multi_cell(0, 6, f"स्वास्थ्य चेतावनी: {p_info['health']}")
+    pdf.multi_cell(0, 6, f"वैदिक मंत्र: {p_info['mantra']}")
+    pdf.multi_cell(0, 6, f"रत्न: {p_info['gem']} | सटीक उपाय: {p_info['remedy']}")
+    pdf.ln(5)
 
-    # Missing Numbers & Remedies
-    story.append(Paragraph("<b>2. Missing Numbers & Remedial Actions</b>", heading_style))
+    # Missing Numbers
+    pdf.set_font("HindiFont", size=13)
+    pdf.cell(0, 10, "2. अनुपस्थित अंक (Missing Numbers) व उपाय", ln=True)
+    pdf.set_font("HindiFont", size=10)
     if missing_nums:
         for num in sorted(missing_nums):
-            story.append(Paragraph(f"<b>Missing Number {num}:</b> {MISSING_REMEDIES[num]}", body_style))
+            pdf.multi_cell(0, 6, f"अंक {num} अनुपस्थित: {MISSING_REMEDIES[num]}")
     else:
-        story.append(Paragraph("No missing numbers in your Date of Birth grid!", body_style))
-    story.append(Spacer(1, 10))
+        pdf.multi_cell(0, 6, "आपकी जन्म तिथि में कोई भी अंक अनुपस्थित नहीं है।")
+    pdf.ln(5)
 
-    # Conflicts/Dosha Warnings
-    story.append(Paragraph("<b>3. Dosha & Conflict Warnings</b>", heading_style))
+    # Conflicts
+    pdf.set_font("HindiFont", size=13)
+    pdf.cell(0, 10, "3. दोष एवं विरोधी संयोजन विश्लेषण", ln=True)
+    pdf.set_font("HindiFont", size=10)
     if conflicts:
         for c in conflicts:
-            story.append(Paragraph(f"⚠️ <b>{c['title']}:</b> {c['desc']} (<b>Remedy:</b> {c['remedy']})", body_style))
+            pdf.multi_cell(0, 6, f"चेतावनी ({c['title']}): {c['desc']} (उपाय: {c['remedy']})")
     else:
-        story.append(Paragraph("No major anti-combination conflicts detected between Mulank and Bhagyank.", body_style))
+        pdf.multi_cell(0, 6, "मूलांक और भाग्यांक में कोई प्रत्यक्ष अति-शत्रुता नहीं है।")
 
-    doc.build(story)
-    buffer.seek(0)
-    return buffer
+    return bytes(pdf.output())
 
 # ---------------------------------------------------------
 # Streamlit UI Layout
@@ -259,14 +239,12 @@ st.title("🔮 वैदिक ज्योतिष एवं अंकशा�
 st.markdown("### Vedic Astrology, Numerology & Remedial Engine")
 st.write("---")
 
-# Sidebar - User Inputs
 st.sidebar.header("📋 जन्म विवरण दर्ज करें (Input Details)")
 user_name = st.sidebar.text_input("पूरा नाम (Full Name)", "Sunil Kumar")
-dob_date = st.sidebar.date_input("जन्म तिथि (Date of Birth)", datetime.date(1995, 8, 29), min_value=datetime.date(1940, 1, 1))
-tob_time = st.sidebar.time_input("जन्म समय (Time of Birth)", datetime.time(10, 30))
+dob_date = st.sidebar.date_input("जन्म तिथि (Date of Birth)", datetime.date(1990, 10, 25), min_value=datetime.date(1940, 1, 1))
+tob_time = st.sidebar.time_input("जन्म समय (Time of Birth)", datetime.time(5, 45))
 
 if st.sidebar.button("📊 जन्मकुंडली व रिपोर्ट जनरेट करें"):
-    # Perform Calculations
     mulank = calculate_mulank(dob_date.day)
     bhagyank = calculate_bhagyank(dob_date)
     namank = calculate_namank(user_name)
@@ -275,7 +253,6 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
     missing_nums = set(range(1, 10)) - present_digits
     day_name = dob_date.strftime("%A")
 
-    # Anti-combination & Dosha Check
     conflicts = []
     pair = sorted([mulank, bhagyank])
     if pair == [1, 8]:
@@ -297,7 +274,6 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
             "remedy": "हनुमान चालीसा का रोज पाठ करें। शांत रहें।"
         })
 
-    # Main Page Output Tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📊 मुख्य अंकशास्त्र (Numerology)",
         "🧩 लो-शू ग्रिड (Lo Shu Grid)",
@@ -306,7 +282,6 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         "🌿 महा-उपाय व मंत्र (Remedies)"
     ])
 
-    # Tab 1: Core Numerology
     with tab1:
         st.subheader("1. मूलभूत अंकशास्त्र विवरण (Key Numbers)")
         col1, col2, col3, col4 = st.columns(4)
@@ -321,17 +296,9 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         st.write(f"**संभावित स्वास्थ्य समस्याएं:** {PLANET_INFO[mulank]['health']}")
         st.write(f"**उपयुक्त रत्न:** {PLANET_INFO[mulank]['gem']}")
 
-    # Tab 2: Lo Shu Grid Analysis
     with tab2:
         st.subheader("2. लो-शू ग्रिड 3x3 (Lo Shu Grid Diagram)")
-        
-        # Format Grid Display
-        grid_pos = [
-            [4, 9, 2],
-            [3, 5, 7],
-            [8, 1, 6]
-        ]
-        
+        grid_pos = [[4, 9, 2], [3, 5, 7], [8, 1, 6]]
         col_g1, col_g2 = st.columns([1, 1])
         with col_g1:
             st.markdown("#### जन्म तिथि ग्रिड:")
@@ -357,15 +324,12 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         else:
             st.success("आपकी जन्म तिथि में सभी अंक मौजूद हैं!")
 
-    # Tab 3: Panchang & Ascendant
     with tab3:
         st.subheader("3. पंचांग एवं लग्न विवरण (Panchang & Ascendant Details)")
         st.info(f"**अनुमानित जन्म लग्न (Approx Ascendant):** {ascendant}")
         st.write(f"**जन्म तिथि:** {dob_date.strftime('%d %B %Y')}")
         st.write(f"**जन्म समय:** {tob_time.strftime('%I:%M %p')}")
-        st.write("**दशा गणना लॉजिक:** मूलांक स्वामी ग्रह की महादशा का प्रभाव वर्तमान चक्र में अधिक क्रियाशील रहता है।")
 
-    # Tab 4: Doshas & Anti-combinations
     with tab4:
         st.subheader("4. दोष एवं विरोधी संयोजन पहचान (Dosha Detector)")
         if conflicts:
@@ -374,7 +338,6 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         else:
             st.success("✨ मूलांक और भाग्यांक में कोई प्रत्यक्ष अति-शत्रुता (Anti-combination) नहीं पाई गई।")
 
-    # Tab 5: Remedies & Mantras
     with tab5:
         st.subheader("5. सर्व-उपाय, महामंत्र एवं समाधान (Remedies & Mantras)")
         st.markdown(f"### 📿 मूलांक {mulank} हेतु वैदिक बीज मंत्र:")
@@ -382,21 +345,21 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         st.write(f"**दैनिक उपाय:** {PLANET_INFO[mulank]['remedy']}")
 
         st.markdown("---")
-        st.markdown("### 📿 भाग्यांक {bhagyank} हेतु वैदिक बीज मंत्र:")
+        st.markdown(f"### 📿 भाग्यांक {bhagyank} हेतु वैदिक बीज मंत्र:")
         st.code(PLANET_INFO[bhagyank]['mantra'], language="text")
         st.write(f"**दैनिक उपाय:** {PLANET_INFO[bhagyank]['remedy']}")
 
-    # PDF Download Button
     st.markdown("---")
-    pdf_file = generate_pdf_report(
+    pdf_bytes = generate_pdf_fpdf(
         user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
         loshu_grid, missing_nums, conflicts
     )
     st.download_button(
         label="📥 पूरी ज्योतिष रिपोर्ट (PDF) डाउनलोड करें",
-        data=pdf_file,
+        data=pdf_bytes,
         file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.pdf",
         mime="application/pdf"
     )
 else:
-    st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना नाम, तिथि और समय दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
+    st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना विवरण दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
+    
