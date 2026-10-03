@@ -129,6 +129,9 @@ def get_loshu_grid(dob_date):
 
 def generate_report_html(name, dob, tob, mulank, bhagyank, namank, asc_data, rashi_data, is_manglik, mang_status, mang_details, mang_remedy, missing_nums):
     p_info = PLANET_INFO[mulank]
+    b_info = PLANET_INFO[bhagyank]
+
+    missing_html = "".join([f"<li><b>अंक {num}:</b> {MISSING_REMEDIES[num]}</li>" for num in sorted(missing_nums)]) if missing_nums else "<li>सभी अंक मौजूद हैं।</li>"
 
     return f"""
     <!DOCTYPE html>
@@ -162,6 +165,10 @@ def generate_report_html(name, dob, tob, mulank, bhagyank, namank, asc_data, ras
             <h3>💼 करियर व भविष्यफल</h3>
             <p>स्वामी ग्रह {p_info['planet']} के अनुसार आपमें {p_info['traits']} हैं। {p_info['lucky_day']} का दिन शुभ रहेगा।</p>
         </div>
+        <div class="card">
+            <h3>❌ अनुपस्थित अंक एवं उपाय</h3>
+            <ul>{missing_html}</ul>
+        </div>
     </body>
     </html>
     """
@@ -175,7 +182,6 @@ st.caption("Complete Vedic Astrology, Kundali & Future Predictions Engine")
 st.sidebar.header("📋 जन्म विवरण दर्ज करें")
 user_name = st.sidebar.text_input("पूरा नाम (Full Name)", "Kusum")
 
-# FIXED DATE INPUT RANGE (Allows years from 1900 up to Today)
 dob_date = st.sidebar.date_input(
     "जन्म तिथि (Date of Birth)",
     value=datetime.date(1990, 10, 25),
