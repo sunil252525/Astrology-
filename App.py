@@ -26,19 +26,26 @@ with st.form("complete_astro_form"):
   submitted = st.form_submit_button("सम्पूर्ण ज्योतिष रिपोर्ट तैयार करें")
 
 
-# 3. PDF जनरेट करने का फ़ंक्शन
+# 3. PDF जनरेट करने का फ़ंक्शन (Fixing multi_cell width)
 def generate_complete_pdf(user_name, user_dob, user_tob, user_pob):
   pdf = FPDF()
   pdf.add_page()
 
+  # लिखने योग्य चौड़ाई निर्धारित करें (210mm - 20mm margins = 190mm)
+  page_width = pdf.w - 2 * pdf.l_margin
+
   # Header
   pdf.set_font("Helvetica", "B", 16)
   pdf.cell(
-      0, 10, "Comprehensive Astrology & Numerology Report", ln=True, align="C"
+      page_width,
+      10,
+      "Comprehensive Astrology & Numerology Report",
+      ln=True,
+      align="C",
   )
   pdf.set_font("Helvetica", "I", 10)
   pdf.cell(
-      0,
+      page_width,
       6,
       f"Generated for: {user_name} | DOB: {user_dob} | Time: {user_tob} | Place: {user_pob}",
       ln=True,
@@ -115,10 +122,10 @@ def generate_complete_pdf(user_name, user_dob, user_tob, user_pob):
 
   for title, items in sections:
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(0, 7, title, ln=True)
+    pdf.cell(page_width, 7, title, ln=True)
     pdf.set_font("Helvetica", "", 9)
     for item in items:
-      pdf.multi_cell(0, 5, f"- {item}")
+      pdf.multi_cell(page_width, 5, f"- {item}")
     pdf.ln(2)
 
   return bytes(pdf.output())
