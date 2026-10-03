@@ -1,0 +1,2 @@
+# Astrology-
+Janam kundli 
