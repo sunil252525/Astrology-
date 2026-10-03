@@ -1,7 +1,6 @@
 import streamlit as st
 import datetime
 import html
-from weasyprint import HTML
 
 # ---------------------------------------------------------
 # Page Configuration
@@ -93,7 +92,6 @@ PLANET_INFO = {
     },
     9: {
         "planet": "मंगल (Mars)",
-        "planet_en": "Mars (Mangal)",
         "traits": "ऊर्जा, साहस, आक्रामकता, भूमि, भ्रातृ सुख।",
         "health": "रक्त संबंधी विकार, दुर्घटना/चोट, अत्यधिक गुस्सा, विवाद।",
         "mantra": "ॐ क्रां क्रीं क्रौं सः भौमाय नमः",
@@ -168,7 +166,7 @@ def get_approx_ascendant(birth_time):
     index = (total_minutes // 120) % 12
     return RASHI_NAMES[index]
 
-def generate_pdf_weasyprint(name, dob, tob, mulank, bhagyank, namank, ascendant, missing_nums, conflicts):
+def generate_report_html(name, dob, tob, mulank, bhagyank, namank, ascendant, missing_nums, conflicts):
     p_info = PLANET_INFO[mulank]
     b_info = PLANET_INFO[bhagyank]
     
@@ -182,32 +180,35 @@ def generate_pdf_weasyprint(name, dob, tob, mulank, bhagyank, namank, ascendant,
     conflicts_html = ""
     if conflicts:
         for c in conflicts:
-            conflicts_html += f"<div class='box warning'><b>⚠️ {html.escape(c['title'])}</b><br>{html.escape(c['desc'])}<br><b>उपाय:</b> {html.escape(c['remedy'])}</div>"
+            conflicts_html += f"<div style='background-color: #fdedec; border-left: 5px solid #e74c3c; padding: 10px; margin-bottom: 10px; border-radius: 4px;'><b>⚠️ {html.escape(c['title'])}</b><br>{html.escape(c['desc'])}<br><b>उपाय:</b> {html.escape(c['remedy'])}</div>"
     else:
-        conflicts_html = "<div class='box success'>✨ मूलांक और भाग्यांक में कोई प्रत्यक्ष विरोधी संयोजन नहीं है।</div>"
+        conflicts_html = "<div style='background-color: #eafaf1; border-left: 5px solid #27ae60; padding: 10px; margin-bottom: 10px; border-radius: 4px;'>✨ मूलांक और भाग्यांक में कोई प्रत्यक्ष विरोधी संयोजन नहीं है।</div>"
 
     html_content = f"""
     <!DOCTYPE html>
-    <html lang="hi">
+    <html>
     <head>
         <meta charset="UTF-8">
+        <title>Astrology Report</title>
         <style>
-            @page {{ size: A4; margin: 20mm; }}
-            body {{ font-family: 'Noto Sans', 'DejaVu Sans', sans-serif; color: #2C3E50; line-height: 1.5; }}
+            body {{ font-family: Arial, sans-serif; color: #2C3E50; padding: 20px; line-height: 1.6; }}
             h1 {{ text-align: center; color: #8E44AD; border-bottom: 2px solid #8E44AD; padding-bottom: 10px; }}
             h2 {{ color: #2980B9; margin-top: 20px; border-bottom: 1px solid #BDC3C7; padding-bottom: 5px; }}
-            .info-table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
-            .info-table td {{ padding: 8px; border: 1px solid #BDC3C7; }}
-            .box {{ padding: 12px; border-radius: 5px; margin-bottom: 10px; }}
-            .warning {{ background-color: #FDEDEC; border-left: 5px solid #E74C3C; }}
-            .success {{ background-color: #EAFAF1; border-left: 5px solid #27AE60; }}
-            .mantra {{ background-color: #F4ECF7; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; }}
+            table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+            td {{ padding: 8px; border: 1px solid #BDC3C7; }}
+            .mantra {{ background-color: #F4ECF7; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px; margin: 10px 0; }}
+            @media print {{
+                .no-print {{ display: none; }}
+            }}
         </style>
     </head>
     <body>
+        <div class="no-print" style="text-align: right; margin-bottom: 20px;">
+            <button onclick="window.print()" style="background-color: #8E44AD; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">🖨️ रिपोर्ट प्रिंट / PDF में सेव करें</button>
+        </div>
         <h1>🔮 वैदिक ज्योतिष एवं अंकशास्त्र विस्तृत रिपोर्ट</h1>
         
-        <table class="info-table">
+        <table>
             <tr><td><b>नाम:</b> {html.escape(name)}</td><td><b>जन्म तिथि:</b> {dob.strftime('%d-%m-%Y')}</td></tr>
             <tr><td><b>जन्म समय:</b> {tob.strftime('%I:%M %p')}</td><td><b>अनुमानित लग्न:</b> {ascendant}</td></tr>
             <tr><td><b>मूलांक (Driver):</b> {mulank} ({p_info['planet']})</td><td><b>भाग्यांक (Conductor):</b> {bhagyank} ({b_info['planet']})</td></tr>
@@ -236,9 +237,7 @@ def generate_pdf_weasyprint(name, dob, tob, mulank, bhagyank, namank, ascendant,
     </body>
     </html>
     """
-    
-    pdf_bytes = HTML(string=html_content).write_pdf()
-    return pdf_bytes
+    return html_content
 
 # ---------------------------------------------------------
 # Streamlit UI Layout
@@ -358,19 +357,16 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         st.write(f"**दैनिक उपाय:** {PLANET_INFO[bhagyank]['remedy']}")
 
     st.markdown("---")
-    try:
-        pdf_bytes = generate_pdf_weasyprint(
-            user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
-            missing_nums, conflicts
-        )
-        st.download_button(
-            label="📥 पूरी ज्योतिष रिपोर्ट (PDF) डाउनलोड करें",
-            data=pdf_bytes,
-            file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.pdf",
-            mime="application/pdf"
-        )
-    except Exception as e:
-        st.error(f"PDF जनरेट करने में त्रुटि: {e}")
+    report_html = generate_report_html(
+        user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
+        missing_nums, conflicts
+    )
+    st.download_button(
+        label="📥 रिपोर्ट HTML/PDF फ़ॉर्मेट में डाउनलोड करें",
+        data=report_html,
+        file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.html",
+        mime="text/html"
+    )
 
 else:
     st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना विवरण दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
