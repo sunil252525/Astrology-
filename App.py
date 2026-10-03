@@ -19,39 +19,37 @@ with st.form("astro_form"):
   submitted = st.form_submit_button("ज्योतिष रिपोर्ट तैयार करें")
 
 
-# 3. FPDF2 का उपयोग करके PDF बनाने का फ़ंक्शन
+# 3. FPDF2 का उपयोग करके PDF बनाने का सही फ़ंक्शन
 def generate_pdf(user_name, user_dob, user_tob, user_pob):
   pdf = FPDF()
   pdf.add_page()
 
-  # फ़ॉन्ट सेट करना (Standard Arial)
-  pdf.set_font("Arial", "B", 18)
-
   # शीर्षक (Title)
-  pdf.cell(0, 15, txt="Astrology Report", ln=True, align="C")
+  pdf.set_font("Helvetica", "B", 18)
+  pdf.cell(0, 15, text="Astrology Report", new_x="LMARGIN", new_y="NEXT", align="C")
   pdf.ln(10)
 
   # विवरण जोड़ने का फ़ंक्शन
-  pdf.set_font("Arial", "", 12)
-  pdf.cell(0, 10, txt=f"Name: {user_name}", ln=True)
-  pdf.cell(0, 10, txt=f"Date of Birth: {user_dob}", ln=True)
-  pdf.cell(0, 10, txt=f"Time of Birth: {user_tob}", ln=True)
-  pdf.cell(0, 10, txt=f"Place of Birth: {user_pob}", ln=True)
+  pdf.set_font("Helvetica", "", 12)
+  pdf.cell(0, 10, text=f"Name: {user_name}", new_x="LMARGIN", new_y="NEXT")
+  pdf.cell(0, 10, text=f"Date of Birth: {user_dob}", new_x="LMARGIN", new_y="NEXT")
+  pdf.cell(0, 10, text=f"Time of Birth: {user_tob}", new_x="LMARGIN", new_y="NEXT")
+  pdf.cell(0, 10, text=f"Place of Birth: {user_pob}", new_x="LMARGIN", new_y="NEXT")
 
   pdf.ln(10)
-  pdf.set_font("Arial", "I", 11)
+  pdf.set_font("Helvetica", "I", 11)
   pdf.multi_cell(
       0,
       8,
-      txt=(
+      text=(
           "Prediction Summary:\nYour planetary positions show positive energy"
           " and progress. Focus on your goals and maintain a balanced"
           " routine."
       ),
   )
 
-  # PDF आउटपुट बाइट्स के रूप में प्राप्त करना
-  return pdf.output(dest="S").encode("latin-1")
+  # fpdf2 के नए वर्ज़न के लिए सही बाइट्स आउटपुट
+  return bytes(pdf.output())
 
 
 # 4. सबमिट होने पर PDF तैयार करना और डाउनलोड बटन दिखाना
