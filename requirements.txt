@@ -2,4 +2,3 @@ streamlit
 fpdf2
 requests
 weasyprint
-
