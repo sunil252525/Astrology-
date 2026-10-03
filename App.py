@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS to ensure high visibility in both Dark and Light themes
+# Custom CSS for UI Visibility
 st.markdown("""
 <style>
     .stMetric {
@@ -68,14 +68,6 @@ PLANET_INFO = {
     7: {"planet": "केतु (Ketu)", "traits": "आध्यात्मिक, शोध विचार", "health": "जोड़ों का दर्द, पैर में चोट", "mantra": "ॐ स्रां स्रीं स्रौं सः केतवे नमः", "gem": "लहसुनिया (Cat's Eye)", "remedy": "कुत्ते को रोटी खिलाएं।", "lucky_day": "मंगलवार", "lucky_color": "चितकबरा", "direction": "उत्तर-पश्चिम"},
     8: {"planet": "शनि (Saturn)", "traits": "कठिन परिश्रम, न्यायप्रियता", "health": "हड्डियों व जोड़ों का दर्द", "mantra": "ॐ प्रां प्रीं प्रौं सः शनैश्र्चराय नमः", "gem": "नीलम (Blue Sapphire)", "remedy": "पीपल के नीचे तेल का दीपक जलाएं।", "lucky_day": "शनिवार", "lucky_color": "काला / गहरा नीला", "direction": "पश्चिम"},
     9: {"planet": "मंगल (Mars)", "traits": "साहस, पराक्रम, ऊर्जा", "health": "रक्त विकार, चोट-चपेट", "mantra": "ॐ क्रां क्रीं क्रौं सः भौमाय नमः", "gem": "मूंगा (Red Coral)", "remedy": "हनुमान जी की आराधना करें।", "lucky_day": "मंगलवार", "lucky_color": "लाल", "direction": "दक्षिण"}
-}
-
-LOSHU_PLANES = {
-    "Mental Plane (4-9-2)": ([4, 9, 2], "तीव्र स्मृति व विश्लेषणात्मक सोच।"),
-    "Emotional Plane (3-5-7)": ([3, 5, 7], "मजबूत अंतर्ज्ञान शक्ति व दयालुता।"),
-    "Practical Plane (8-1-6)": ([8, 1, 6], "व्यावहारिक सोच व व्यावसायिक सफलता।"),
-    "Will Power Plane (9-5-1)": ([9, 5, 1], "अटूट इच्छाशक्ति और सफलता प्राप्त करने का जुनून।"),
-    "Raj Yoga (4-5-6 / 2-5-8)": ([4, 5, 6], "जीवन में राजयोग व भूमि-भवन का विशेष सुख।")
 }
 
 MISSING_REMEDIES = {
@@ -137,9 +129,6 @@ def get_loshu_grid(dob_date):
 
 def generate_report_html(name, dob, tob, mulank, bhagyank, namank, asc_data, rashi_data, is_manglik, mang_status, mang_details, mang_remedy, missing_nums):
     p_info = PLANET_INFO[mulank]
-    b_info = PLANET_INFO[bhagyank]
-    
-    missing_html = "".join([f"<li><b>अंक {num}:</b> {MISSING_REMEDIES[num]}</li>" for num in sorted(missing_nums)]) if missing_nums else "<li>सभी अंक मौजूद हैं।</li>"
 
     return f"""
     <!DOCTYPE html>
@@ -185,10 +174,18 @@ st.caption("Complete Vedic Astrology, Kundali & Future Predictions Engine")
 
 st.sidebar.header("📋 जन्म विवरण दर्ज करें")
 user_name = st.sidebar.text_input("पूरा नाम (Full Name)", "Kusum")
-dob_date = st.sidebar.date_input("जन्म तिथि (Date of Birth)", datetime.date(1990, 10, 25), min_value=datetime.date(1940, 1, 1))
+
+# FIXED DATE INPUT RANGE (Allows years from 1900 up to Today)
+dob_date = st.sidebar.date_input(
+    "जन्म तिथि (Date of Birth)",
+    value=datetime.date(1990, 10, 25),
+    min_value=datetime.date(1900, 1, 1),
+    max_value=datetime.date.today()
+)
+
 tob_time = st.sidebar.time_input("जन्म समय (Time of Birth)", datetime.time(5, 45))
 
-# Automatic Execution (No button required for default display)
+# Automatic Execution
 mulank = calculate_mulank(dob_date.day)
 bhagyank = calculate_bhagyank(dob_date)
 namank = calculate_namank(user_name)
