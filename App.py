@@ -1,6 +1,7 @@
 import streamlit as st
 import datetime
-from fpdf import FPDF
+import html
+from weasyprint import HTML
 
 # ---------------------------------------------------------
 # Page Configuration
@@ -28,7 +29,6 @@ CHALDEAN_MAP = {
 PLANET_INFO = {
     1: {
         "planet": "सूर्य (Sun)",
-        "planet_en": "Sun (Surya)",
         "traits": "नेतृत्व, स्वाभिमान, ऊर्जा, स्वतंत्रता, ईगो।",
         "health": "सिरदर्द, आंखों की कमजोरी, उच्च रक्तचाप, हृदय संबंधी अड़चनें।",
         "mantra": "ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः",
@@ -37,7 +37,6 @@ PLANET_INFO = {
     },
     2: {
         "planet": "चंद्रमा (Moon)",
-        "planet_en": "Moon (Chandra)",
         "traits": "भावुकता, कल्पनाशीलता, सौम्यता, चंचल मन, संवेदनशीलता।",
         "health": "मानसिक तनाव, अवसाद/डिप्रेशन, अनिद्रा, सर्दी-जुकाम।",
         "mantra": "ॐ श्रां श्रीं श्रौं सः चंद्रमसे नमः",
@@ -46,7 +45,6 @@ PLANET_INFO = {
     },
     3: {
         "planet": "गुरु (Jupiter)",
-        "planet_en": "Jupiter (Guru)",
         "traits": "ज्ञान, परामर्श, अनुशासन, धर्म, महत्वाकांक्षा।",
         "health": "मोटापा, लीवर विकार, पेट के रोग, अति-विश्वास से हानि।",
         "mantra": "ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः",
@@ -55,7 +53,6 @@ PLANET_INFO = {
     },
     4: {
         "planet": "राहु (Rahu)",
-        "planet_en": "Rahu",
         "traits": "अचानक बदलाव, लीक से हटकर सोच, संघर्ष, तीव्र बुद्धि।",
         "health": "अचानक धन हानि, मानसिक भ्रम, पाचन संबंधी विकार, कानूनी अड़चनें।",
         "mantra": "ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः",
@@ -64,7 +61,6 @@ PLANET_INFO = {
     },
     5: {
         "planet": "बुध (Mercury)",
-        "planet_en": "Mercury (Budh)",
         "traits": "बुद्धि, व्यापार, वाणी, चपलता, तर्कशक्ति।",
         "health": "त्वचा रोग, तंत्रिका तंत्र (Nervous System) की कमजोरी, एकाग्रता की कमी।",
         "mantra": "ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः",
@@ -73,7 +69,6 @@ PLANET_INFO = {
     },
     6: {
         "planet": "शुक्र (Venus)",
-        "planet_en": "Venus (Shukra)",
         "traits": "लक्जरी, कला, सौंदर्य, सुख-सुविधाएं, प्रेम।",
         "health": "डायबिटीज, किडनी विकार, अत्यधिक विलासिता से हानि।",
         "mantra": "ॐ द्रां द्रीं द्रौं सः शुक्राय नमः",
@@ -82,7 +77,6 @@ PLANET_INFO = {
     },
     7: {
         "planet": "केतु (Ketu)",
-        "planet_en": "Ketu",
         "traits": "आध्यात्मिकता, शोध, विश्लेषणात्मक सोच, रहस्य, अकेलापन।",
         "health": "त्वचा इंफेक्शन, जोड़ों/पैरों में दर्द, अलगाववाद, धोखा मिलना।",
         "mantra": "ॐ स्रां स्रीं स्रौं सः केतवे नमः",
@@ -91,7 +85,6 @@ PLANET_INFO = {
     },
     8: {
         "planet": "शनि (Saturn)",
-        "planet_en": "Saturn (Shani)",
         "traits": "कड़ी मेहनत, न्याय, ढिलाई/विलंब, संघर्ष, दीर्घकालिक सफलता।",
         "health": "वातरोग, हड्डियों व जोड़ों में दर्द, आलस्य, कार्यों में देरी।",
         "mantra": "ॐ प्रां प्रीं प्रौं सः शनैश्र्चराय नमः",
@@ -121,21 +114,21 @@ LOSHU_PLANES = {
 }
 
 MISSING_REMEDIES = {
-    1: "Water in copper vessel. Wear red thread.",
-    2: "Do not waste water. Wear silver chain or bangle.",
-    3: "Keep yellow handkerchief. Respect teachers.",
-    4: "Wear wooden beads bracelet. Plant green plants.",
-    5: "Wear Green Aventurine crystal.",
-    6: "Wear wrist watch. Maintain cleanliness.",
-    7: "Wear white or grey clothes. Serve elders.",
-    8: "Wear Amethyst/Black Tourmaline. Be punctual.",
-    9: "Use red color. Donate blood or serve in temple."
+    1: "तांबे के बर्तन से जल पीएं व सूर्य देव को अर्घ्य दें।",
+    2: "जल व्यर्थ न बहाएं। चांदी की चेन या कड़ा धारण करें।",
+    3: "पीला रुमाल पास रखें। गुरुजनों का आदर करें।",
+    4: "लकड़ी या तुलसी की माला पहनें। हरे पौधे लगाएं।",
+    5: "ग्रीन एवेंचुरिन क्रिस्टल या हरा धागा पहनें।",
+    6: "सुगंधित इत्र और कलाई पर घड़ी पहनें। साफ-सफाई रखें।",
+    7: "सफेद या हल्के रंग के कपड़े पहनें। बुजुर्गों की सेवा करें।",
+    8: "ब्लैक टूरमैलिन या एमेथिस्ट पहनें। समय के पाबंद बनें।",
+    9: "लाल रंग का उपयोग करें। मंदिर में सेवा करें।"
 }
 
 RASHI_NAMES = [
-    "Aries", "Taurus", "Gemini", "Cancer",
-    "Leo", "Virgo", "Libra", "Scorpio",
-    "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    "मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)",
+    "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)",
+    "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"
 ]
 
 # ---------------------------------------------------------
@@ -175,51 +168,77 @@ def get_approx_ascendant(birth_time):
     index = (total_minutes // 120) % 12
     return RASHI_NAMES[index]
 
-def generate_pdf_fpdf(name, dob, tob, mulank, bhagyank, namank, ascendant, missing_nums, conflicts):
-    pdf = FPDF()
-    pdf.add_page()
-    
-    pdf.set_font("Arial", style="B", size=16)
-
-    # Title
-    pdf.cell(0, 10, "Vedic Astrology & Numerology Report", ln=True, align="C")
-    pdf.set_font("Arial", size=11)
-    pdf.cell(0, 8, f"Name: {name} | DOB: {dob.strftime('%d-%m-%Y')} | TOB: {tob.strftime('%H:%M')}", ln=True)
-    pdf.cell(0, 8, f"Ascendant: {ascendant} | Name No: {namank}", ln=True)
-    pdf.cell(0, 8, f"Mulank (Driver): {mulank} | Bhagyank (Conductor): {bhagyank}", ln=True)
-    pdf.ln(5)
-
-    # Planetary Analysis
-    pdf.set_font("Arial", style="B", size=13)
-    pdf.cell(0, 10, "1. Planetary Analysis & Attributes", ln=True)
-    pdf.set_font("Arial", size=10)
+def generate_pdf_weasyprint(name, dob, tob, mulank, bhagyank, namank, ascendant, missing_nums, conflicts):
     p_info = PLANET_INFO[mulank]
-    pdf.multi_cell(0, 6, f"Driver Planet: {p_info['planet_en']}")
-    pdf.multi_cell(0, 6, f"Gemstone: {p_info['gem']}")
-    pdf.ln(5)
-
-    # Missing Numbers
-    pdf.set_font("Arial", style="B", size=13)
-    pdf.cell(0, 10, "2. Missing Numbers & Remedial Actions", ln=True)
-    pdf.set_font("Arial", size=10)
+    b_info = PLANET_INFO[bhagyank]
+    
+    missing_html = ""
     if missing_nums:
         for num in sorted(missing_nums):
-            pdf.multi_cell(0, 6, f"Missing Number {num}: {MISSING_REMEDIES[num]}")
+            missing_html += f"<li><b>अंक {num} ({PLANET_INFO[num]['planet']}):</b> {MISSING_REMEDIES[num]}</li>"
     else:
-        pdf.multi_cell(0, 6, "No missing numbers in birth date.")
-    pdf.ln(5)
+        missing_html = "<li>आपकी जन्म तिथि में सभी अंक मौजूद हैं।</li>"
 
-    # Conflicts
-    pdf.set_font("Arial", style="B", size=13)
-    pdf.cell(0, 10, "3. Dosha & Conflict Warnings", ln=True)
-    pdf.set_font("Arial", size=10)
+    conflicts_html = ""
     if conflicts:
         for c in conflicts:
-            pdf.multi_cell(0, 6, f"Warning: {c['title']}")
+            conflicts_html += f"<div class='box warning'><b>⚠️ {html.escape(c['title'])}</b><br>{html.escape(c['desc'])}<br><b>उपाय:</b> {html.escape(c['remedy'])}</div>"
     else:
-        pdf.multi_cell(0, 6, "No major anti-combination conflicts detected.")
+        conflicts_html = "<div class='box success'>✨ मूलांक और भाग्यांक में कोई प्रत्यक्ष विरोधी संयोजन नहीं है।</div>"
 
-    return bytes(pdf.output())
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="hi">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            @page {{ size: A4; margin: 20mm; }}
+            body {{ font-family: 'Noto Sans', 'DejaVu Sans', sans-serif; color: #2C3E50; line-height: 1.5; }}
+            h1 {{ text-align: center; color: #8E44AD; border-bottom: 2px solid #8E44AD; padding-bottom: 10px; }}
+            h2 {{ color: #2980B9; margin-top: 20px; border-bottom: 1px solid #BDC3C7; padding-bottom: 5px; }}
+            .info-table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+            .info-table td {{ padding: 8px; border: 1px solid #BDC3C7; }}
+            .box {{ padding: 12px; border-radius: 5px; margin-bottom: 10px; }}
+            .warning {{ background-color: #FDEDEC; border-left: 5px solid #E74C3C; }}
+            .success {{ background-color: #EAFAF1; border-left: 5px solid #27AE60; }}
+            .mantra {{ background-color: #F4ECF7; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; }}
+        </style>
+    </head>
+    <body>
+        <h1>🔮 वैदिक ज्योतिष एवं अंकशास्त्र विस्तृत रिपोर्ट</h1>
+        
+        <table class="info-table">
+            <tr><td><b>नाम:</b> {html.escape(name)}</td><td><b>जन्म तिथि:</b> {dob.strftime('%d-%m-%Y')}</td></tr>
+            <tr><td><b>जन्म समय:</b> {tob.strftime('%I:%M %p')}</td><td><b>अनुमानित लग्न:</b> {ascendant}</td></tr>
+            <tr><td><b>मूलांक (Driver):</b> {mulank} ({p_info['planet']})</td><td><b>भाग्यांक (Conductor):</b> {bhagyank} ({b_info['planet']})</td></tr>
+            <tr><td colspan="2"><b>नामांक (Name Number):</b> {namank}</td></tr>
+        </table>
+
+        <h2>1. मूलांक {mulank} विस्तृत विश्लेषण</h2>
+        <p><b>विशेषता व प्रकृति:</b> {p_info['traits']}</p>
+        <p><b>संभावित स्वास्थ्य समस्याएं:</b> {p_info['health']}</p>
+        <p><b>उपयुक्त रत्न:</b> {p_info['gem']}</p>
+
+        <h2>2. अनुपस्थित अंक (Missing Numbers) एवं उपाय</h2>
+        <ul>{missing_html}</ul>
+
+        <h2>3. दोष एवं विरोधी योग विश्लेषण</h2>
+        {conflicts_html}
+
+        <h2>4. महा-उपाय एवं वैदिक मंत्र</h2>
+        <p><b>मूलांक {mulank} वैदिक बीज मंत्र:</b></p>
+        <div class="mantra">{p_info['mantra']}</div>
+        <p><b>दैनिक उपाय:</b> {p_info['remedy']}</p>
+        
+        <p><b>भाग्यांक {bhagyank} वैदिक बीज मंत्र:</b></p>
+        <div class="mantra">{b_info['mantra']}</div>
+        <p><b>दैनिक उपाय:</b> {b_info['remedy']}</p>
+    </body>
+    </html>
+    """
+    
+    pdf_bytes = HTML(string=html_content).write_pdf()
+    return pdf_bytes
 
 # ---------------------------------------------------------
 # Streamlit UI Layout
@@ -339,16 +358,20 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
         st.write(f"**दैनिक उपाय:** {PLANET_INFO[bhagyank]['remedy']}")
 
     st.markdown("---")
-    pdf_bytes = generate_pdf_fpdf(
-        user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
-        missing_nums, conflicts
-    )
-    st.download_button(
-        label="📥 पूरी ज्योतिष रिपोर्ट (PDF) डाउनलोड करें",
-        data=pdf_bytes,
-        file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.pdf",
-        mime="application/pdf"
-    )
+    try:
+        pdf_bytes = generate_pdf_weasyprint(
+            user_name, dob_date, tob_time, mulank, bhagyank, namank, ascendant,
+            missing_nums, conflicts
+        )
+        st.download_button(
+            label="📥 पूरी ज्योतिष रिपोर्ट (PDF) डाउनलोड करें",
+            data=pdf_bytes,
+            file_name=f"{user_name.replace(' ', '_')}_Astrology_Report.pdf",
+            mime="application/pdf"
+        )
+    except Exception as e:
+        st.error(f"PDF जनरेट करने में त्रुटि: {e}")
+
 else:
     st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना विवरण दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
     
