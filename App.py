@@ -1,7 +1,6 @@
 import streamlit as st
 import datetime
 from fpdf import FPDF
-import requests
 import os
 
 # ---------------------------------------------------------
@@ -108,7 +107,7 @@ LOSHU_PLANES = {
     "Practical Plane (8-1-6)": ([8, 1, 6], "व्यावहारिक सोच, व्यावसायिक सफलता व संपत्ति लाभ।"),
     "Thought Plane (4-3-8)": ([4, 3, 8], "दूरदर्शिता, दूरगामी योजनाएं व नई सोच।"),
     "Will Power Plane (9-5-1)": ([9, 5, 1], "दृढ़ इच्छाशक्ति, सफलता प्राप्त करने का जुनून।"),
-    "Action Plane (2-7-6)": ([2, 7, 6], "तुरंत निर्णय लेना, ऊर्जावान निष्पादन।"),
+    "Action Plane (2-7-6)": ([2, 7, 6], "तुरंत निर्णय लेना, ऊर्जावान निष्पादना।"),
     "Raj Yoga 1 (4-5-6)": ([4, 5, 6], "अत्यंत शुभ! जीवन में राजयोग, धन-संपत्ति व स्थिरता।"),
     "Raj Yoga 2 (2-5-8)": ([2, 5, 8], "भूमि-भवन सुख, रियल एस्टेट में सफलता व आर्थिक मजबूती।")
 }
@@ -144,7 +143,7 @@ def calculate_mulank(day):
 
 def calculate_bhagyank(dob_date):
     dob_str = dob_date.strftime("%Y%m%d")
-    total = sum(int(digit) for digit in dob_str)
+    total = sum(int(digit) for digit in str(dob_str))
     return reduce_to_single_digit(total)
 
 def calculate_namank(name):
@@ -168,67 +167,53 @@ def get_approx_ascendant(birth_time):
     index = (total_minutes // 120) % 12
     return RASHI_NAMES[index]
 
-def download_hindi_font():
-    font_path = "FreeSerif.ttf"
-    if not os.path.exists(font_path):
-        url = "https://raw.githubusercontent.com/google/fonts/main/ofl/dejavusans/DejaVuSans.ttf"
-        r = requests.get(url)
-        with open(font_path, "wb") as f:
-            f.write(r.content)
-    return font_path
-
 def generate_pdf_fpdf(name, dob, tob, mulank, bhagyank, namank, ascendant, loshu_grid, missing_nums, conflicts):
-    font_path = download_hindi_font()
-    
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font("HindiFont", "", font_path)
-    pdf.set_font("HindiFont", size=12)
+    
+    # System font usage (Robust for Cloud Server)
+    pdf.set_font("Helvetica", style="B", size=16)
 
     # Title
-    pdf.set_font("HindiFont", size=16)
-    pdf.cell(0, 10, "वैदिक ज्योतिष एवं अंकशास्त्र विस्तृत रिपोर्ट", ln=True, align="C")
-    pdf.ln(5)
-
-    # User Info
-    pdf.set_font("HindiFont", size=11)
-    pdf.cell(0, 8, f"नाम: {name} | जन्म तिथि: {dob.strftime('%d-%m-%Y')} | समय: {tob.strftime('%H:%M')}", ln=True)
-    pdf.cell(0, 8, f"अनुमानित लग्न: {ascendant} | नामांक: {namank}", ln=True)
-    pdf.cell(0, 8, f"मूलांक (Driver): {mulank} | भाग्यांक (Conductor): {bhagyank}", ln=True)
+    pdf.cell(0, 10, "Vedic Astrology & Numerology Comprehensive Report", ln=True, align="C")
+    pdf.set_font("Helvetica", size=11)
+    pdf.cell(0, 8, f"Name: {name} | DOB: {dob.strftime('%d-%m-%Y')} | TOB: {tob.strftime('%H:%M')}", ln=True)
+    pdf.cell(0, 8, f"Ascendant: {ascendant} | Name No: {namank}", ln=True)
+    pdf.cell(0, 8, f"Mulank (Driver): {mulank} | Bhagyank (Conductor): {bhagyank}", ln=True)
     pdf.ln(5)
 
     # Planetary Analysis
-    pdf.set_font("HindiFont", size=13)
-    pdf.cell(0, 10, "1. मूलांक व ग्रह विश्लेषण", ln=True)
-    pdf.set_font("HindiFont", size=10)
+    pdf.set_font("Helvetica", style="B", size=13)
+    pdf.cell(0, 10, "1. Planetary Analysis & Attributes", ln=True)
+    pdf.set_font("Helvetica", size=10)
     p_info = PLANET_INFO[mulank]
-    pdf.multi_cell(0, 6, f"स्वामी ग्रह: {p_info['planet']}")
-    pdf.multi_cell(0, 6, f"विशेषता: {p_info['traits']}")
-    pdf.multi_cell(0, 6, f"स्वास्थ्य चेतावनी: {p_info['health']}")
-    pdf.multi_cell(0, 6, f"वैदिक मंत्र: {p_info['mantra']}")
-    pdf.multi_cell(0, 6, f"रत्न: {p_info['gem']} | सटीक उपाय: {p_info['remedy']}")
+    pdf.multi_cell(0, 6, f"Driver Planet: {p_info['planet']}")
+    pdf.multi_cell(0, 6, f"Traits: {p_info['traits']}")
+    pdf.multi_cell(0, 6, f"Health Warnings: {p_info['health']}")
+    pdf.multi_cell(0, 6, f"Vedic Mantra: {p_info['mantra']}")
+    pdf.multi_cell(0, 6, f"Gemstone: {p_info['gem']} | Remedy: {p_info['remedy']}")
     pdf.ln(5)
 
     # Missing Numbers
-    pdf.set_font("HindiFont", size=13)
-    pdf.cell(0, 10, "2. अनुपस्थित अंक (Missing Numbers) व उपाय", ln=True)
-    pdf.set_font("HindiFont", size=10)
+    pdf.set_font("Helvetica", style="B", size=13)
+    pdf.cell(0, 10, "2. Missing Numbers & Remedial Actions", ln=True)
+    pdf.set_font("Helvetica", size=10)
     if missing_nums:
         for num in sorted(missing_nums):
-            pdf.multi_cell(0, 6, f"अंक {num} अनुपस्थित: {MISSING_REMEDIES[num]}")
+            pdf.multi_cell(0, 6, f"Missing Number {num}: {MISSING_REMEDIES[num]}")
     else:
-        pdf.multi_cell(0, 6, "आपकी जन्म तिथि में कोई भी अंक अनुपस्थित नहीं है।")
+        pdf.multi_cell(0, 6, "No missing numbers in birth date.")
     pdf.ln(5)
 
     # Conflicts
-    pdf.set_font("HindiFont", size=13)
-    pdf.cell(0, 10, "3. दोष एवं विरोधी संयोजन विश्लेषण", ln=True)
-    pdf.set_font("HindiFont", size=10)
+    pdf.set_font("Helvetica", style="B", size=13)
+    pdf.cell(0, 10, "3. Dosha & Conflict Warnings", ln=True)
+    pdf.set_font("Helvetica", size=10)
     if conflicts:
         for c in conflicts:
-            pdf.multi_cell(0, 6, f"चेतावनी ({c['title']}): {c['desc']} (उपाय: {c['remedy']})")
+            pdf.multi_cell(0, 6, f"Warning ({c['title']}): {c['desc']} (Remedy: {c['remedy']})")
     else:
-        pdf.multi_cell(0, 6, "मूलांक और भाग्यांक में कोई प्रत्यक्ष अति-शत्रुता नहीं है।")
+        pdf.multi_cell(0, 6, "No major anti-combination conflicts detected between Mulank and Bhagyank.")
 
     return bytes(pdf.output())
 
@@ -362,4 +347,3 @@ if st.sidebar.button("📊 जन्मकुंडली व रिपोर्
     )
 else:
     st.info("👈 कृपया बाएं (Sidebar) पैनल में अपना विवरण दर्ज करके **'जन्मकुंडली व रिपोर्ट जनरेट करें'** पर क्लिक करें।")
-    
